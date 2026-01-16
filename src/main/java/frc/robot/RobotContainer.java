@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.OIConstants;
@@ -33,8 +32,6 @@ public class RobotContainer {
     public final VisionSubsystem m_vision;
 
     // The driver's controllers
-    private final CommandJoystick leftJoystick = new CommandJoystick(OIConstants.kLeftJoystickPort);
-    private final CommandJoystick rightJoystick = new CommandJoystick(OIConstants.kRightJoystickPort);
     private final CommandXboxController xboxController = new CommandXboxController(OIConstants.kXboxControllerPort);
 
     // Dashboard chooser for autonomous command
@@ -76,13 +73,13 @@ public class RobotContainer {
         // The right stick controls translation of the robot.
         // Turning is controlled by the X axis of the left stick.
         m_robotDrive.setDefaultCommand(new DriveCommand(
-                rightJoystick::getY,
-                rightJoystick::getX,
-                leftJoystick::getX,
+                xboxController::getRightX,
+                xboxController::getRightY,
+                xboxController::getLeftX,
                 m_robotDrive));
 
         // Button 7 on the right stick resets the gyro
-        rightJoystick.button(7).onTrue(
+        xboxController.a().onTrue(
                 new InstantCommand(m_robotDrive::zeroHeading));
 
         xboxController.back().whileTrue(new RunCommand(
