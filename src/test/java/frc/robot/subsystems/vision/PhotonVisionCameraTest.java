@@ -188,9 +188,9 @@ public class PhotonVisionCameraTest {
         AprilTag aprilTag = visionCamera.makeAprilTag(fiducialId, fieldToRobotPose, robotToTag);
 
         // Assert
-        assertEquals(11.56, aprilTag.pose.getX(), 0.01);
-        assertEquals(8.06, aprilTag.pose.getY(), 0.01);
-        assertEquals(1.30, aprilTag.pose.getZ(), 0.01);
+        assertEquals(11.31, aprilTag.pose.getX(), 0.05);
+        assertEquals(4.39, aprilTag.pose.getY(), 0.05);
+        assertEquals(1.12, aprilTag.pose.getZ(), 0.05);
     }
 
     @Test

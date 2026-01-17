@@ -113,7 +113,7 @@ public final class Constants {
     }
 
     public static final class VisionConstants {
-        public static final AprilTagFields kFieldLayout = AprilTagFields.k2025ReefscapeWelded;
+        public static final AprilTagFields kFieldLayout = AprilTagFields.k2026RebuiltWelded;
         public static final double kMaxAmbiguity = 0.10;
     }
 }
