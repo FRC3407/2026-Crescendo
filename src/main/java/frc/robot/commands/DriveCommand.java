@@ -4,9 +4,11 @@
 
 package frc.robot.commands;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -18,6 +20,7 @@ public class DriveCommand extends Command {
     private final DoubleSupplier forwardStick;
     private final DoubleSupplier sidewaysStick;
     private final DoubleSupplier rotStick;
+    private final BooleanSupplier tagLock;
 
     /**
      * Drive the robot using joysticks.
@@ -28,19 +31,23 @@ public class DriveCommand extends Command {
      * @param drive DriveSubsystem
      */
     public DriveCommand(DoubleSupplier forwardStick, DoubleSupplier sidewaysStick, DoubleSupplier rotStick,
-            DriveSubsystem drive) {
+            BooleanSupplier tagLock, DriveSubsystem drive) {
         this.forwardStick = forwardStick;
         this.sidewaysStick = sidewaysStick;
         this.rotStick = rotStick;
         this.driveSubsystem = drive;
+        this.tagLock = tagLock;
         addRequirements(this.driveSubsystem);
     }
 
     @Override
     public void execute() {
         double xSpeed = MathUtil.applyDeadband(sidewaysStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
-        double ySpeed = MathUtil.applyDeadband(forwardStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
+        double ySpeed = MathUtil.applyDeadband(forwardStick.getAsDouble(), OIConstants.kDriveDeadband);
         double rot = MathUtil.applyDeadband(rotStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
+        if (tagLock.getAsBoolean()) {
+            // rot = 
+        }
         driveSubsystem.drive(xSpeed, ySpeed, rot, true);
     }
 }

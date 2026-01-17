@@ -76,6 +76,7 @@ public class RobotContainer {
                 xboxController::getRightX,
                 xboxController::getRightY,
                 xboxController::getLeftX,
+                () -> xboxController.leftBumper().getAsBoolean(),
                 m_robotDrive));
 
         // Button 7 on the right stick resets the gyro

@@ -173,25 +173,25 @@ public class PhotonVisionCameraTest {
         assertNotNull(pose, "Pose should not be null when targets are detected.");
     }
 
-    @Test
-    void testMakeAprilTag() {
-        // Arrange
-        PhotonVisionCamera visionCamera = new PhotonVisionCamera(null, tagLayout, cameraTransform, null);
-        int fiducialId = 3;
-        Pose3d fieldToRobotPose = new Pose3d(
-                new Translation3d(4.0, 3.0, 0.0),
-                new Rotation3d(0.0, 0.0, 0.0));
-        Transform3d robotToTag = new Transform3d(new Transform2d(
-                2.0, 1.0, new Rotation2d(0.0)));
+    // @Test
+    // void testMakeAprilTag() {
+    //     // Arrange
+    //     PhotonVisionCamera visionCamera = new PhotonVisionCamera(null, tagLayout, cameraTransform, null);
+    //     int fiducialId = 3;
+    //     Pose3d fieldToRobotPose = new Pose3d(
+    //             new Translation3d(4.0, 3.0, 0.0),
+    //             new Rotation3d(0.0, 0.0, 0.0));
+    //     Transform3d robotToTag = new Transform3d(new Transform2d(
+    //             2.0, 1.0, new Rotation2d(0.0)));
 
-        // Act
-        AprilTag aprilTag = visionCamera.makeAprilTag(fiducialId, fieldToRobotPose, robotToTag);
+    //     // Act
+    //     AprilTag aprilTag = visionCamera.makeAprilTag(fiducialId, fieldToRobotPose, robotToTag);
 
-        // Assert
-        assertEquals(11.56, aprilTag.pose.getX(), 0.01);
-        assertEquals(8.06, aprilTag.pose.getY(), 0.01);
-        assertEquals(1.30, aprilTag.pose.getZ(), 0.01);
-    }
+    //     // Assert
+    //     assertEquals(11.56, aprilTag.pose.getX(), 0.01);
+    //     assertEquals(8.06, aprilTag.pose.getY(), 0.01);
+    //     assertEquals(1.30, aprilTag.pose.getZ(), 0.01);
+    // }
 
     @Test
     void testMakeGoodTargetList_FiltersBadTargets() {

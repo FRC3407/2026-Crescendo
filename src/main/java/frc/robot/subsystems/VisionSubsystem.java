@@ -32,17 +32,25 @@ public class VisionSubsystem extends SubsystemBase {
     public VisionSubsystem(DriveSubsystem driveSubsystem) {
         this.driveSubsystem = driveSubsystem;
         this.tagLayout = AprilTagFieldLayout.loadField(VisionConstants.kFieldLayout);
-        /*
-        cameraList.add(new PhotonVisionCamera("Arducam_OV9281_USB_Camera", this.taglayout, new Transform3d(
+        
+        cameraList.add(new PhotonVisionCamera("Arducam_OV9281_USB_Camera", this.tagLayout, new Transform3d(
                 new Translation3d(
-                        Units.inchesToMeters(0.0), // left or right from center
-                        Units.inchesToMeters(8.0), // forward from robot center
-                        Units.inchesToMeters(12.0)), // distance up from the floor
+                        Units.inchesToMeters(1.5), // left or right from center
+                        Units.inchesToMeters(-5.5), // forward from robot center
+                        Units.inchesToMeters(14.5)), // distance up from the floor
                 new Rotation3d(
                         Rotation2d.fromDegrees(0).getRadians(), // roll
-                        Rotation2d.fromDegrees(0.0).getRadians(), // pitch
-                        Rotation2d.fromDegrees(0).getRadians())))); // yaw
-         */
+                        Rotation2d.fromDegrees(-13).getRadians(), // pitch
+                        Rotation2d.fromDegrees(180).getRadians())))); // yaw
+        cameraList.add(new PhotonVisionCamera("Microsoft_LifeCam_HD-3000", this.tagLayout, new Transform3d(
+                new Translation3d(
+                        Units.inchesToMeters(0), // left or right from center
+                        Units.inchesToMeters(6), // forward from robot center
+                        Units.inchesToMeters(21)), // distance up from the floor
+                new Rotation3d(
+                        Rotation2d.fromDegrees(0.0).getRadians(), // roll
+                        Rotation2d.fromDegrees(16).getRadians(), // pitch
+                        Rotation2d.fromDegrees(0.0).getRadians())))); // yaw
     }
 
     @Override
