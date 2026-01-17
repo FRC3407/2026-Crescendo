@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -35,10 +34,7 @@ public class PhotonVisionCamera implements VisionCamera {
         this(new PhotonCamera(cameraName),
                 tgl,
                 cameraTransform,
-                new PhotonPoseEstimator(tgl,
-                        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                        cameraTransform));
-        this.poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+                new PhotonPoseEstimator(tgl, cameraTransform));
     }
 
     PhotonVisionCamera(PhotonCamera camera, AprilTagFieldLayout tgl, Transform3d cameraTransform,
@@ -69,10 +65,17 @@ public class PhotonVisionCamera implements VisionCamera {
         for (PhotonPipelineResult pipelineResult : camera.getAllUnreadResults()) {
             List<PhotonTrackedTarget> targetList = makeGoodTargetList(pipelineResult, null);
             if (!targetList.isEmpty()) {
-                visionEst = poseEstimator.update(pipelineResult);
+                visionEst = estimateBestPose(pipelineResult);
             }
         }
         return visionEst.isPresent() ? new VisionPoseEstimate(visionEst.get()) : null;
+    }
+
+    private Optional<EstimatedRobotPose> estimateBestPose(PhotonPipelineResult pipelineResult) {
+        if (!pipelineResult.getMultiTagResult().isEmpty()) {
+            return poseEstimator.estimateCoprocMultiTagPose(pipelineResult);
+        }
+        return poseEstimator.estimateLowestAmbiguityPose(pipelineResult);
     }
 
     /**
@@ -134,7 +137,7 @@ public class PhotonVisionCamera implements VisionCamera {
      * with a field-relative {@code Pose3d}.
      */
     private AprilTag toAprilTag(PhotonPipelineResult pipelineResult, PhotonTrackedTarget target) {
-        Optional<EstimatedRobotPose> visionEst = poseEstimator.update(pipelineResult);
+        Optional<EstimatedRobotPose> visionEst = estimateBestPose(pipelineResult);
         if (!visionEst.isPresent()) {
             return null;
         }
@@ -179,5 +182,10 @@ public class PhotonVisionCamera implements VisionCamera {
     @Override
     public void setPipelineIndex(int pipelineIndex) {
         camera.setPipelineIndex(pipelineIndex);
+    }
+
+    @Override
+    public String toString() {
+        return "PhotonVisionCamera[" + this.camera + "]";
     }
 }
