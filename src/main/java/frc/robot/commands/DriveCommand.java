@@ -28,7 +28,7 @@ public class DriveCommand extends Command {
     private final DoubleSupplier forwardStick;
     private final DoubleSupplier sidewaysStick;
     private final DoubleSupplier rotStick;
-    private final BooleanSupplier tagLock;
+    private final BooleanSupplier targeting_switch;
     private final VisionCamera lifeCamera;
 
     /**
@@ -47,7 +47,7 @@ public class DriveCommand extends Command {
         this.driveSubsystem = drive;
         this.visionSubsystem = vision;
         this.lifeCamera = vision.cameraList.get(1);
-        this.tagLock = targeting_switch;
+        this.targeting_switch = targeting_switch;
         addRequirements(this.driveSubsystem);
     }
 
@@ -57,7 +57,7 @@ public class DriveCommand extends Command {
         double ySpeed = MathUtil.applyDeadband(forwardStick.getAsDouble(), OIConstants.kDriveDeadband);
         double rot = MathUtil.applyDeadband(rotStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
         
-        if (tagLock.getAsBoolean()) {
+        if (targeting_switch.getAsBoolean()) {
             AprilTag tag = lifeCamera.getBestTag(9);
             Pose2d tagpose = tag.pose.toPose2d();
             if (tag != null) {
