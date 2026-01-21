@@ -370,7 +370,7 @@ public class PhotonVisionCameraTest {
 
         EstimatedRobotPose mockPose = mock(EstimatedRobotPose.class);
         when(target2.getBestCameraToTarget()).thenReturn(new Transform3d());
-        when(mockEstimator.update(pipelineResult)).thenReturn(Optional.of(mockPose));
+        when(mockEstimator.estimateLowestAmbiguityPose(pipelineResult)).thenReturn(Optional.of(mockPose));
 
         // Act
         AprilTag result = visionCamera.getBestTag(8, 2, 6);
