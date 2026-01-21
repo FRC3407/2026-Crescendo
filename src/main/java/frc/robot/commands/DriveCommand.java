@@ -40,14 +40,14 @@ public class DriveCommand extends Command {
      * @param drive DriveSubsystem
      */
     public DriveCommand(DoubleSupplier forwardStick, DoubleSupplier sidewaysStick, DoubleSupplier rotStick,
-            BooleanSupplier tagLock, DriveSubsystem drive,  VisionSubsystem vision) {
+            BooleanSupplier targeting_switch, DriveSubsystem drive,  VisionSubsystem vision) {
         this.forwardStick = forwardStick;
         this.sidewaysStick = sidewaysStick;
         this.rotStick = rotStick;
         this.driveSubsystem = drive;
         this.visionSubsystem = vision;
         this.lifeCamera = vision.cameraList.get(1);
-        this.tagLock = tagLock;
+        this.tagLock = targeting_switch;
         addRequirements(this.driveSubsystem);
     }
 
@@ -72,7 +72,7 @@ public class DriveCommand extends Command {
                 Double ang_to_target = Math.atan2(deltay.in(Meter), deltax.in(Meter));
                 Rotation2d angle_to_target_radians = new Rotation2d(ang_to_target);
                 Rotation2d relative_rotation = ang.relativeTo(angle_to_target_radians);
-                rot = relative_rotation.getRadians();
+                rot = -relative_rotation.getRadians()/Math.PI;
             }
         }
         driveSubsystem.drive(xSpeed, ySpeed, rot, true);
