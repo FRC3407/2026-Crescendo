@@ -60,9 +60,11 @@ public class DriveCommand extends Command {
         double rot = MathUtil.applyDeadband(rotStick.getAsDouble(), OIConstants.kDriveDeadband);
         
         if (targeting_switch.getAsBoolean()) {
-            AprilTag tag = lifeCamera.getBestTag(9);
-            Pose2d tagpose = tag.pose.toPose2d();
+            System.out.println("Left Bumper Pressed");
+            AprilTag tag = lifeCamera.getBestTag();
             if (tag != null) {
+                System.out.println("tag found: " + tag);
+                Pose2d tagpose = tag.pose.toPose2d();
                 Pose2d currentpose = driveSubsystem.getPose();
                 Rotation2d ang = currentpose.getRotation();
                 Distance y = currentpose.getMeasureY();
