@@ -37,7 +37,9 @@ public class DriveCommand extends Command {
      * @param forwardStick Joystick for forward translation.
      * @param sidewaysStick Joystick for sideways translation.
      * @param rotStick Joystick axis for rotation.
+     * @param targeting_switch Controls the targeting system.
      * @param drive DriveSubsystem
+     * @param vision VisionSubsystem.
      */
     public DriveCommand(DoubleSupplier forwardStick, DoubleSupplier sidewaysStick, DoubleSupplier rotStick,
             BooleanSupplier targeting_switch, DriveSubsystem drive,  VisionSubsystem vision) {
@@ -55,7 +57,7 @@ public class DriveCommand extends Command {
     public void execute() {
         double xSpeed = MathUtil.applyDeadband(sidewaysStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
         double ySpeed = MathUtil.applyDeadband(forwardStick.getAsDouble(), OIConstants.kDriveDeadband);
-        double rot = MathUtil.applyDeadband(rotStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
+        double rot = MathUtil.applyDeadband(rotStick.getAsDouble(), OIConstants.kDriveDeadband);
         
         if (targeting_switch.getAsBoolean()) {
             AprilTag tag = lifeCamera.getBestTag(9);
@@ -72,9 +74,12 @@ public class DriveCommand extends Command {
                 Double ang_to_target = Math.atan2(deltay.in(Meter), deltax.in(Meter));
                 Rotation2d angle_to_target_radians = new Rotation2d(ang_to_target);
                 Rotation2d relative_rotation = ang.relativeTo(angle_to_target_radians);
-                rot = -relative_rotation.getRadians()/Math.PI;
+                rot = -relative_rotation.getRadians()/Math.PI; 
+                // normalize to -1 to 1
             }
         }
+        rot = rot * -1;
+        System.out.println(rot);
         driveSubsystem.drive(xSpeed, ySpeed, rot, true);
     }
 }
