@@ -60,7 +60,7 @@ public class DriveCommand extends Command {
         double rot = MathUtil.applyDeadband(rotStick.getAsDouble(), OIConstants.kDriveDeadband);
         
         if (targeting_switch.getAsBoolean()) {
-            System.out.println("Left Bumper Pressed");
+            System.out.println("Left Bumper Pressed"); 
             AprilTag tag = lifeCamera.getBestTag();
             if (tag != null) {
                 System.out.println("tag found: " + tag);
