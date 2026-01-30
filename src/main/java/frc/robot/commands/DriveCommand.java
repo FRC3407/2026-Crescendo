@@ -53,6 +53,19 @@ public class DriveCommand extends Command {
         addRequirements(this.driveSubsystem);
     }
 
+    private Pose2d getTargetTagPose() {
+        AprilTag tag = lifeCamera.getBestTag();
+
+        if (tag != null) {
+            System.out.println("tag found: " + tag);
+            Pose2d tagpose  = tag.pose.toPose2d();
+            return tagpose;
+        }
+        else {
+            return null;
+        }
+    }
+
     @Override
     public void execute() {
         double xSpeed = MathUtil.applyDeadband(sidewaysStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
@@ -61,16 +74,14 @@ public class DriveCommand extends Command {
         
         if (targeting_switch.getAsBoolean()) {
             System.out.println("Left Bumper Pressed"); 
-            AprilTag tag = lifeCamera.getBestTag();
-            if (tag != null) {
-                System.out.println("tag found: " + tag);
-                Pose2d tagpose = tag.pose.toPose2d();
+            Pose2d targetpose = getTargetTagPose();
+            if (targetpose != null) {
                 Pose2d currentpose = driveSubsystem.getPose();
                 Rotation2d ang = currentpose.getRotation();
                 Distance y = currentpose.getMeasureY();
                 Distance x = currentpose.getMeasureX();
-                Distance tagx = tagpose.getMeasureX();
-                Distance tagy = tagpose.getMeasureY();
+                Distance tagx = targetpose.getMeasureX();
+                Distance tagy = targetpose.getMeasureY();
                 Distance deltax = tagx.minus(x);
                 Distance deltay = tagy.minus(y);
                 Double ang_to_target = Math.atan2(deltay.in(Meter), deltax.in(Meter));
