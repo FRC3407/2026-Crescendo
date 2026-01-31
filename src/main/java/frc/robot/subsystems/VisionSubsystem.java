@@ -60,6 +60,7 @@ public class VisionSubsystem extends SubsystemBase {
         for (VisionCamera visionCamera : cameraList) {
             VisionPoseEstimate estimatedRobotPose = visionCamera.getEstimatedRobotPose();
             if (estimatedRobotPose != null) {
+                System.out.println(estimatedRobotPose.pose2d);
                 targetFound = true;
                 if (estimatedRobotPose.timestampSeconds != visionCamera.getPrevTimeStamp()) {
                     driveSubsystem.addVisionMeasurement(
