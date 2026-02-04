@@ -32,8 +32,11 @@ public class RobotContainer {
     public final VisionSubsystem m_vision;
 
     // The driver's controllers
-    private final CommandXboxController xboxController = new CommandXboxController(OIConstants.kXboxControllerPort);
+    // private final CommandXboxController xboxController = new CommandXboxController(OIConstants.kXboxControllerPort);
 
+    private final CommandJoystick leftJoystick = new CommandJoystick(OIConstants.kLeftJoystickPort);
+    private final CommandJoystick rightJoystick = new CommandJoystick(OIConstants.kRightJoystickPort);
+    
     // Dashboard chooser for autonomous command
     private final SendableChooser<Command> autoChooser;
 
@@ -73,18 +76,22 @@ public class RobotContainer {
         // The right stick controls translation of the robot.
         // Turning is controlled by the X axis of the left stick.
         m_robotDrive.setDefaultCommand(new DriveCommand(
-                xboxController::getRightX,
-                xboxController::getRightY,
-                xboxController::getLeftX,
+                // xboxController::getRightX,
+                // xboxController::getRightY,
+                // xboxController::getLeftX,
+                rightJoystick::getX,
+                rightJoystick::getY,
+                leftJoystick::getX,
                 m_robotDrive));
 
         // Button 7 on the right stick resets the gyro
-        xboxController.a().onTrue(
+        // xboxController.a().onTrue(
+        rightJoystick.button(7).onTrue(
                 new InstantCommand(m_robotDrive::zeroHeading));
 
-        xboxController.back().whileTrue(new RunCommand(
-                m_robotDrive::setSwerveModulesToX,
-                m_robotDrive));
+        // xboxController.back().whileTrue(new RunCommand(
+        //         m_robotDrive::setSwerveModulesToX,
+        //         m_robotDrive));
     }
 
     /**
