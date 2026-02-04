@@ -29,10 +29,12 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -99,6 +101,10 @@ public class DriveSubsystem extends SubsystemBase {
      */
     private final StructPublisher<Pose2d> odometryLogger;
 
+    //Simulated Gryo
+    private Rotation2d m_simGyroAngle = Rotation2d.fromDegrees(0);
+    private double m_simGyroRate;
+
     public DriveSubsystem() {
         HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_MaxSwerve);
 
@@ -139,13 +145,14 @@ public class DriveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         final Pose2d updatedPose = m_odometry.update(
-                Rotation2d.fromDegrees(-m_gyro.getAngle()),
+                Rotation2d.fromDegrees(getHeading()),
                 new SwerveModulePosition[]{
                     m_frontLeft.getPosition(),
                     m_frontRight.getPosition(),
                     m_rearLeft.getPosition(),
                     m_rearRight.getPosition()
                 });
+        
         gyroDisplay.setNumber(getHeading());
         voltageDisplay.setNumber(powerDistribution.getVoltage());
         odometryDisplay.setRobotPose(updatedPose);
@@ -168,7 +175,7 @@ public class DriveSubsystem extends SubsystemBase {
      */
     public void resetOdometry(Pose2d pose) {
         m_odometry.resetPosition(
-                Rotation2d.fromDegrees(-m_gyro.getAngle()),
+                Rotation2d.fromDegrees(getHeading()),
                 new SwerveModulePosition[]{
                     m_frontLeft.getPosition(),
                     m_frontRight.getPosition(),
@@ -200,7 +207,7 @@ public class DriveSubsystem extends SubsystemBase {
         SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
                 fieldRelative
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                                Rotation2d.fromDegrees(-m_gyro.getAngle()))
+                                Rotation2d.fromDegrees(getHeading()))
                         : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
         SwerveDriveKinematics.desaturateWheelSpeeds(
                 swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
@@ -257,7 +264,11 @@ public class DriveSubsystem extends SubsystemBase {
      * @return the robot's heading in degrees, from -180 to 180
      */
     public double getHeading() {
-        return Rotation2d.fromDegrees(-m_gyro.getAngle()).getDegrees();
+        if(RobotBase.isReal()) {
+            return Rotation2d.fromDegrees(-m_gyro.getAngle()).getDegrees();
+        } else {
+            return m_simGyroAngle.getDegrees();
+        }
     }
 
     /**
@@ -292,4 +303,26 @@ public class DriveSubsystem extends SubsystemBase {
                 speeds.omegaRadiansPerSecond / Constants.DriveConstants.kMaxAngularSpeed,
                 false);
     }
+
+    //This can only be called from simulationPeriodic()
+    private void updateGyro() {
+        ChassisSpeeds speeds = getChassisSpeeds();
+        m_simGyroRate = speeds.omegaRadiansPerSecond;
+        m_simGyroAngle = m_simGyroAngle.plus(Rotation2d.fromRadians(m_simGyroRate * .02));
+    }
+
+    //This can only be called from simulationPeriodic()
+    private void updateSimEncoders(MAXSwerveModule... swerveModules) {
+        for(var swerveModule : swerveModules) {
+            swerveModule.updateSimEncoders();
+        }
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        super.simulationPeriodic();
+        updateSimEncoders(m_frontLeft, m_frontRight, m_rearLeft, m_rearRight);
+        updateGyro();
+    }
+
 }
