@@ -13,7 +13,9 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -30,7 +32,8 @@ public class DriveCommand extends Command {
     private final DoubleSupplier rotStick;
     private final BooleanSupplier targeting_switch;
     private final VisionCamera lifeCamera;
-
+    private final Translation2d R_hub = new Translation2d(4.02844, 3.522);
+    private final Translation2d L_hub = new Translation2d(16.54 - 4.02844, 8.07 - 3.522);
     /**
      * Drive the robot using joysticks.
      * 
@@ -65,16 +68,33 @@ public class DriveCommand extends Command {
             return null;
         }
     }
-
+    private Translation2d getTargetHub() {
+        Pose2d currentpose = driveSubsystem.getPose();
+        Distance y = currentpose.getMeasureY();
+        Distance x = currentpose.getMeasureX();
+        Translation2d currenttranslation = new Translation2d(x, y);
+        if(currenttranslation.getDistance(R_hub) > currenttranslation.getDistance(L_hub)){
+            return L_hub;
+        }
+        else{
+            return R_hub;
+        }
+    }
     @Override
     public void execute() {
-        double xSpeed = MathUtil.applyDeadband(sidewaysStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
-        double ySpeed = MathUtil.applyDeadband(forwardStick.getAsDouble(), OIConstants.kDriveDeadband);
-        double rot = MathUtil.applyDeadband(rotStick.getAsDouble(), OIConstants.kDriveDeadband);
-        
+           double xSpeed = MathUtil.applyDeadband(sidewaysStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
+           double ySpeed = MathUtil.applyDeadband(forwardStick.getAsDouble(), OIConstants.kDriveDeadband);
+           double rot = MathUtil.applyDeadband(rotStick.getAsDouble(), OIConstants.kDriveDeadband);
+        if (RobotBase.isSimulation()){
+            ySpeed = MathUtil.applyDeadband(sidewaysStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
+            xSpeed = MathUtil.applyDeadband(forwardStick.getAsDouble(), OIConstants.kDriveDeadband);
+            rot = MathUtil.applyDeadband(rotStick.getAsDouble(), OIConstants.kDriveDeadband);
+        }
         if (targeting_switch.getAsBoolean()) {
             System.out.println("Left Bumper Pressed"); 
-            Pose2d targetpose = getTargetTagPose();
+            //change commented line to go from april tag to coordinate lock
+            // Pose2d targetpose = getTargetTagPose();      
+            Pose2d targetpose = new Pose2d(getTargetHub(), new Rotation2d());
             if (targetpose != null) {
                 Pose2d currentpose = driveSubsystem.getPose();
                 Rotation2d ang = currentpose.getRotation();
@@ -85,14 +105,14 @@ public class DriveCommand extends Command {
                 Distance deltax = tagx.minus(x);
                 Distance deltay = tagy.minus(y);
                 Double ang_to_target = Math.atan2(deltay.in(Meter), deltax.in(Meter));
+                System.out.println("ang target: " + ang_to_target);
                 Rotation2d angle_to_target_radians = new Rotation2d(ang_to_target);
                 Rotation2d relative_rotation = ang.relativeTo(angle_to_target_radians);
-                rot = -relative_rotation.getRadians()/Math.PI; 
-                // normalize to -1 to 1
+                rot = relative_rotation.getRadians()/Math.PI;
+                // normalize to -1 to 1, sqrt to make rotation faster
             }
         }
         rot = rot * -1;
-        System.out.println(rot);
-        driveSubsystem.drive(xSpeed, ySpeed, rot, true);
+                driveSubsystem.drive(xSpeed, ySpeed, rot, true);
     }
 }
