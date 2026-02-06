@@ -109,8 +109,8 @@ public class DriveCommand extends Command {
                 System.out.println("ang target: " + ang_to_target);
                 Rotation2d angle_to_target_radians = new Rotation2d(ang_to_target);
                 Rotation2d relative_rotation = ang.relativeTo(angle_to_target_radians);
-                rot = relative_rotation.getRadians()/Math.PI;
-                // normalize to -1 to 1, sqrt to make rotation faster
+                rot = relative_rotation.getRadians()/Math.PI; 
+                // normalize to -1 to 1
             }
         }
         rot = rot * -1;
