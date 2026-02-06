@@ -42,7 +42,7 @@ public class DriveCommand extends Command {
     
     @Override
     public void execute() {
-        int m_boostValue = 1; // hj
+        int m_boostValue = 1; // hdd
         if (m_linearBoostSupplier.getAsBoolean()) {
             m_boostValue = 2;
         }
