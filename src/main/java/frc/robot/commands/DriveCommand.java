@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
@@ -19,27 +20,34 @@ public class DriveCommand extends Command {
     private final DoubleSupplier sidewaysStick;
     private final DoubleSupplier rotStick;
 
+    private final BooleanSupplier m_linearBoostSupplier; // idk what to name it so thanks henry
+
     /**
      * Drive the robot using joysticks.
-     * 
+     * xbox
      * @param forwardStick Joystick for forward translation.
      * @param sidewaysStick Joystick for sideways translation.
      * @param rotStick Joystick axis for rotation.
      * @param drive DriveSubsystem
      */
-    public DriveCommand(DoubleSupplier forwardStick, DoubleSupplier sidewaysStick, DoubleSupplier rotStick,
-            DriveSubsystem drive) {
+    public DriveCommand(DoubleSupplier forwardStick, DoubleSupplier sidewaysStick, DoubleSupplier rotStick, 
+                        BooleanSupplier m_linearBoostSupplier, DriveSubsystem drive) {
         this.forwardStick = forwardStick;
         this.sidewaysStick = sidewaysStick;
         this.rotStick = rotStick;
         this.driveSubsystem = drive;
+        this.m_linearBoostSupplier = m_linearBoostSupplier;
         addRequirements(this.driveSubsystem);
     }
-
+    
     @Override
     public void execute() {
-        double xSpeed = MathUtil.applyDeadband(sidewaysStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
-        double ySpeed = MathUtil.applyDeadband(forwardStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
+        int m_boostValue = 1; // hj
+        if (m_linearBoostSupplier.getAsBoolean()) {
+            m_boostValue = 2;
+        }
+        double xSpeed = MathUtil.applyDeadband(sidewaysStick.getAsDouble(), OIConstants.kDriveDeadband) * -1 * 0.5*m_boostValue;
+        double ySpeed = MathUtil.applyDeadband(forwardStick.getAsDouble(), OIConstants.kDriveDeadband) * -1 * 0.5*m_boostValue;
         double rot = MathUtil.applyDeadband(rotStick.getAsDouble(), OIConstants.kDriveDeadband) * -1;
         driveSubsystem.drive(xSpeed, ySpeed, rot, true);
     }
