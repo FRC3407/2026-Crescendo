@@ -87,7 +87,7 @@ public class DriveCommand extends Command {
                 Double ang_to_target = Math.atan2(deltay.in(Meter), deltax.in(Meter));
                 Rotation2d angle_to_target_radians = new Rotation2d(ang_to_target);
                 Rotation2d relative_rotation = ang.relativeTo(angle_to_target_radians);
-                rot = -relative_rotation.getRadians()/Math.PI; 
+                rot = relative_rotation.getRadians()/Math.PI; 
                 // normalize to -1 to 1
             }
         }
