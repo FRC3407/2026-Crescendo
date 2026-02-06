@@ -11,6 +11,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -34,6 +35,7 @@ public class DriveCommand extends Command {
     private final VisionCamera lifeCamera;
     private final Translation2d R_hub = new Translation2d(4.02844, 3.522);
     private final Translation2d L_hub = new Translation2d(16.54 - 4.02844, 8.07 - 3.522);
+    private final PIDController targetLockPID = new PIDController(3, 0, 0);
     /**
      * Drive the robot using joysticks.
      * 
@@ -105,11 +107,19 @@ public class DriveCommand extends Command {
                 Distance deltax = tagx.minus(x);
                 Distance deltay = tagy.minus(y);
                 Double ang_to_target = Math.atan2(deltay.in(Meter), deltax.in(Meter));
-                System.out.println("ang target: " + ang_to_target);
                 Rotation2d angle_to_target_radians = new Rotation2d(ang_to_target);
                 Rotation2d relative_rotation = ang.relativeTo(angle_to_target_radians);
-                rot = relative_rotation.getRadians()/Math.PI;
-                // normalize to -1 to 1, sqrt to make rotation faster
+                double raw_rot = -targetLockPID.calculate(relative_rotation.getRadians(), 0);
+                System.out.print(raw_rot);
+                if (raw_rot < -1){
+                    rot = -1;
+                }
+                if (raw_rot > 1){
+                    rot = 1;
+                }
+                else{
+                    rot = raw_rot;
+                }
             }
         }
         rot = rot * -1;
