@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Meter;
 
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -16,13 +17,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.vision.VisionCamera;
-
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DriverStation;
 /** Default command for driving the {@code DriveSubystem} using joysticks */
 public class DriveCommand extends Command {
 
@@ -33,8 +36,8 @@ public class DriveCommand extends Command {
     private final DoubleSupplier rotStick;
     private final BooleanSupplier targeting_switch;
     private final VisionCamera lifeCamera;
-    private final Translation2d R_hub = new Translation2d(4.02844, 3.522);
-    private final Translation2d L_hub = new Translation2d(16.54 - 4.02844, 8.07 - 3.522);
+    private final Translation2d B_hub = new Translation2d(4.02844, 3.522);
+    private final Translation2d R_hub = new Translation2d(16.54 - 4.02844, 8.07 - 3.522);
     private final PIDController targetLockPID = new PIDController(3, 0, 0);
     /**
      * Drive the robot using joysticks.
@@ -70,16 +73,14 @@ public class DriveCommand extends Command {
             return null;
         }
     }
+    
     private Translation2d getTargetHub() {
-        Pose2d currentpose = driveSubsystem.getPose();
-        Distance y = currentpose.getMeasureY();
-        Distance x = currentpose.getMeasureX();
-        Translation2d currenttranslation = new Translation2d(x, y);
-        if(currenttranslation.getDistance(R_hub) > currenttranslation.getDistance(L_hub)){
-            return L_hub;
+        Optional<Alliance> al = DriverStation.getAlliance();
+        if(al.get() == DriverStation.Alliance.Blue){
+            return R_hub;
         }
         else{
-            return R_hub;
+            return B_hub;
         }
     }
     @Override
