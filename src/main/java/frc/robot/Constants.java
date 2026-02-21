@@ -91,7 +91,7 @@ public final class Constants {
         public static final int kXboxControllerPort = 0;
         public static final double kDriveDeadband = 0.25;
         public static final double kDriveRotationDeadband = 0.25;
-        public static final double kDriveRotationSpeed = 0.25;
+        public static final double kDriveRotationSpeed = 0.15;
         public static final double kDriveExponent = 2;
     }
 
