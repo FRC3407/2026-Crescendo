@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.DriveCommand;
@@ -32,7 +32,8 @@ public class RobotContainer {
     public final VisionSubsystem m_vision;
 
     // The driver's controllers
-    private final CommandXboxController xboxController = new CommandXboxController(OIConstants.kXboxControllerPort);
+    // private final CommandXboxController xboxController = new CommandXboxController(OIConstants.kXboxControllerPort);
+    private final CommandJoystick joystick = new CommandJoystick(OIConstants.kXboxControllerPort);
 
     // Dashboard chooser for autonomous command
     private final SendableChooser<Command> autoChooser;
@@ -73,16 +74,16 @@ public class RobotContainer {
         // The right stick controls translation of the robot.
         // Turning is controlled by the X axis of the left stick.
         m_robotDrive.setDefaultCommand(new DriveCommand(
-                xboxController::getRightX,
-                xboxController::getRightY,
-                xboxController::getLeftX,
+                joystick::getX,
+                joystick::getY,
+                joystick::getTwist,
                 m_robotDrive));
 
         // Button 7 on the right stick resets the gyro
-        xboxController.a().onTrue(
+        joystick.button(12).onTrue(
                 new InstantCommand(m_robotDrive::zeroHeading));
 
-        xboxController.back().whileTrue(new RunCommand(
+        joystick.button(2).whileTrue(new RunCommand(
                 m_robotDrive::setSwerveModulesToX,
                 m_robotDrive));
     }
@@ -104,7 +105,8 @@ public class RobotContainer {
     /**
      * Use this method for additional configuration to the driver's dashboard.
      * SmartDashboard data should be added from subsystems and commands, but
-     * this method defines the dashboard widgets.
+     * this method defines the das
+     * hboard widgets.
      */
     private void configureDashboard() {
         SmartDashboard.putData("Auto Chooser", autoChooser);
